@@ -1,3 +1,4 @@
+from win32com import client
 from openpyxl import load_workbook
 import re
 
@@ -9,7 +10,7 @@ class FuncOfConvert:
         self.data = {}
 
     def read_data_from_excel(self):
-        wb = load_workbook(self.excel_file_path)
+        wb = load_workbook(self.excel_file_path, read_only=True)
         sheet_names = wb.sheetnames
         ws = wb[sheet_names[0]]
 
@@ -49,61 +50,64 @@ class FuncOfConvert:
         sheet = book.Worksheets(1)
         sheet.Range('A36:AE44').Copy()
 
-        myRange = doc.Range()
-        myRange.InsertAfter(self.data['bank_name'] + '：' + self.data['customer_name'] + '  归管客户经理：' + self.data['manager_person'])
-        myRange.InsertAfter('(一)借款人基本情况')
-        myRange.InsertAfter(self.data['customer_basic_info_1'])
-        myRange.InsertAfter(self.data['customer_basic_info_2'])
-        myRange.InsertAfter('关联企业情况：' + self.data['associate_enterprise_info'])
-        myRange.InsertAfter('关联并表：' + self.data['associate_merge_table'])
-        myRange.InsertAfter('(二)企业经营者相关情况')
-        myRange.InsertAfter(self.data['enterprise_operator_info_1'])
-        myRange.InsertAfter(self.data['enterprise_operator_info_2'])
+        # myRange = doc.Range()
+        # myRange = doc.Selection
+        word.Selection.InsertAfter(self.data['bank_name'] + '：' + self.data['customer_name'] + '  归管客户经理：' + self.data['manager_person'] + '\n')
+        word.Selection.InsertAfter('(一)借款人基本情况\n')
+        word.Selection.InsertAfter(self.data['customer_basic_info_1'])
+        word.Selection.InsertAfter(self.data['customer_basic_info_2'])
+        word.Selection.InsertAfter('关联企业情况：' + self.data['associate_enterprise_info'])
+        word.Selection.InsertAfter('关联并表：' + self.data['associate_merge_table'])
+        word.Selection.InsertAfter('(二)企业经营者相关情况\n')
+        word.Selection.InsertAfter(self.data['enterprise_operator_info_1'])
+        word.Selection.InsertAfter(self.data['enterprise_operator_info_2'])
 
-        wdRange = doc.Content
-        wdRange.Collapse(0)
-        wdRange.PasteExcelTable(False, False, False)
-        wdRange.Collapse(0)
+        # wdRange = doc.Content
+        # wdRange.Collapse(0)
+        word.Selection.MoveRight()
+        word.Selection.PasteExcelTable(False, False, False)
+        # wdRange.PasteExcelTable(False, False, False)
 
-        myRange.InsertAfter('(三)企业财务状况')
-        myRange.InsertAfter(self.data['enterprise_finance_condition_1'])
+        word.Selection.InsertAfter('(三)企业财务状况\n')
+        word.Selection.InsertAfter(self.data['enterprise_finance_condition_1'])
 
         sheet.Range('A108:AE157').Copy()
-        wdRange.PasteExcelTable(False, False, False)
-        wdRange.Collapse(0)
+        word.Selection.MoveRight()
+        word.Selection.PasteExcelTable(False, False, False)
+        # wdRange.PasteExcelTable(False, False, False)
 
-        myRange.InsertAfter(self.data['enterprise_finance_condition_2'])
-        myRange.InsertAfter(self.data['enterprise_finance_condition_3'])
+        word.Selection.InsertAfter(self.data['enterprise_finance_condition_2'])
+        word.Selection.InsertAfter(self.data['enterprise_finance_condition_3'])
 
-        myRange.InsertAfter('(四)存量授信及申报授信情况')
+        word.Selection.InsertAfter('(四)存量授信及申报授信情况\n')
 
         sheet.Range('A62:AE86').Copy()
-        wdRange.PasteExcelTable(False, False, False)
-        wdRange.Collapse(0)
+        word.Selection.MoveRight()
+        word.Selection.PasteExcelTable(False, False, False)
+        # wdRange.PasteExcelTable(False, False, False)
 
-        myRange.InsertAfter('保证人及抵押物情况介绍')
-        myRange.InsertAfter(self.data['warrantor_and_guaranty_1'])
-        myRange.InsertAfter(self.data['warrantor_and_guaranty_2'])
+        word.Selection.InsertAfter('保证人及抵押物情况介绍\n')
+        word.Selection.InsertAfter(self.data['warrantor_and_guaranty_1'])
+        word.Selection.InsertAfter(self.data['warrantor_and_guaranty_2'])
 
-        myRange.InsertAfter('第二保证人落实情况：')
+        word.Selection.InsertAfter('第二保证人落实情况：\n')
         sheet.Range('A161:AE166').Copy()
-        wdRange.PasteExcelTable(False, False, False)
-        wdRange.Collapse(0)
+        word.Selection.MoveRight()
+        word.Selection.PasteExcelTable(False, False, False)
+        # wdRange.PasteExcelTable(False, False, False)
 
-        myRange.InsertAfter('(五)支行申报理由及用途')
-        myRange.InsertAfter(self.data['declaration_reason_and_purpose_1'])
-        myRange.InsertAfter(self.data['declaration_reason_and_purpose_2'])
+        word.Selection.InsertAfter('(五)支行申报理由及用途\n')
+        word.Selection.InsertAfter(self.data['declaration_reason_and_purpose_1'])
+        word.Selection.InsertAfter(self.data['declaration_reason_and_purpose_2'])
 
-        myRange.InsertAfter('授信部意见：')
-        myRange.InsertAfter('风险提示：')
-        myRange.InsertAfter('(六)授信审批委员会集体审议结论')
-
-
-        myRange.InsertAfter(self.data['customer_name'])
+        word.Selection.InsertAfter('授信部意见：\n')
+        word.Selection.InsertAfter('风险提示：\n')
+        word.Selection.InsertAfter('(六)授信审批委员会集体审议结论\n')
 
         doc.Save()
         doc.Close()
 
+        book.Application.CutCopyMode = False
         book.Close()
 
         print('转移完成!')
@@ -122,9 +126,11 @@ class FuncOfConvert:
 
 
 if __name__ == '__main__':
-    excel_path = 'C:\\Users\\Administrator\\Desktop\\123.xlsx'
+    excel_path = 'C:\\Users\\Administrator\\Desktop\\2020审核调查报告—对公.xlsx'
     word_path = 'C:\\Users\\Administrator\\Desktop\\123.docx'
 
     cla = FuncOfConvert(excel_path, word_path)
-    cla.test()
+    cla.read_data_from_excel()
+    cla.win32test()
+    # cla.test()
     # cla.win32test()
