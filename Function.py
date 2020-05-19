@@ -1,6 +1,8 @@
 from win32com import client
 from openpyxl import load_workbook
 import re
+import os
+import xlrd
 
 
 class FuncOfConvert:
@@ -8,9 +10,16 @@ class FuncOfConvert:
         self.excel_file_path = excel_file_path
         self.word_file_path = word_file_path
         self.data = {}
+        self.file_list = []
 
-    def read_data_from_excel(self):
-        wb = load_workbook(self.excel_file_path, read_only=True)
+    def get_file_list(self, file_path):
+        for file_name in os.listdir(file_path):
+            extension = os.path.splitext(file_name)[-1][1:]
+            if extension == 'xlsx' or extension == 'xls':
+                self.file_list.append(os.path.join(file_path, file_name))
+
+    def read_data_from_excel(self, excel_file_path):
+        wb = load_workbook(excel_file_path, read_only=True)
         sheet_names = wb.sheetnames
         ws = wb[sheet_names[0]]
 
@@ -40,6 +49,36 @@ class FuncOfConvert:
         self.data['declaration_reason_and_purpose_2'] = '\n'.join(
             ws.cell(row=169, column=1).value.split('\n')[1:])  # 支行申报理由及用途2
 
+    def read_data_from_xls(self, excel_file_path):
+        excel = xlrd.open_workbook(excel_file_path)
+        ws = excel.sheet_by_index(0)
+
+        # 匹配支行和客户经理
+        partten_manager_name = re.compile(r'(?P<name>.*)：(?P<bank_name>.*)（(?P<manager_person>.*)）')
+        match = partten_manager_name.match(ws.cell(rowx=3, colx=1).value.strip())
+
+        self.data['bank_name'] = match.group('bank_name')  # 支行名称 A3's value
+        self.data['customer_name'] = ws.cell(rowx=4, colx=2).value  # 客户 B4's value
+        self.data['manager_person'] = match.group('manager_person')  # 归管客户经理 A3's value
+        self.data['customer_basic_info_1'] = ws.cell(rowx=31, colx=1).value  # 借款人基本情况1
+        self.data['customer_basic_info_2'] = ws.cell(rowx=32, colx=1).value  # 借款人基本情况2
+        self.data['associate_enterprise_info'] = ws.cell(rowx=34, colx=1).value  # 关联企业情况
+        self.data['associate_merge_table'] = ws.cell(rowx=35, colx=1).value  # 关联并表
+        self.data['enterprise_operator_info_1'] = '\n'.join(
+            ws.cell(rowx=49, colx=1).value.split('\n')[1:])  # 企业经营者相关情况1
+        self.data['enterprise_operator_info_2'] = '\n'.join(
+            ws.cell(rowx=50, colx=1).value.split('\n')[1:])  # 企业经营者相关情况2
+        self.data['enterprise_finance_condition_1'] = '\n'.join(
+            ws.cell(rowx=33, colx=1).value.split('\n')[1:])  # 企业财务状况1
+        self.data['enterprise_finance_condition_2'] = ws.cell(rowx=158, colx=1).value  # 企业财务状况2
+        self.data['enterprise_finance_condition_3'] = ws.cell(rowx=159, colx=1).value  # 企业财务状况3
+        self.data['warrantor_and_guaranty_1'] = '\n'.join(ws.cell(rowx=87, colx=1).value.split('\n')[1:])  # 保证人及抵押物情况
+        self.data['warrantor_and_guaranty_2'] = '\n'.join(ws.cell(rowx=88, colx=1).value.split('\n')[1:])  # 保证人及抵押物情况
+        self.data['declaration_reason_and_purpose_1'] = '\n'.join(
+            ws.cell(rowx=168, colx=1).value.split('\n')[1:])  # 支行申报理由及用途1
+        self.data['declaration_reason_and_purpose_2'] = '\n'.join(
+            ws.cell(rowx=169, colx=1).value.split('\n')[1:])  # 支行申报理由及用途2
+
     def win32test(self):
         excel = client.Dispatch('Excel.Application')
         word = client.Dispatch('Word.Application')
@@ -52,7 +91,8 @@ class FuncOfConvert:
 
         # myRange = doc.Range()
         # myRange = doc.Selection
-        word.Selection.InsertAfter(self.data['bank_name'] + '：' + self.data['customer_name'] + '  归管客户经理：' + self.data['manager_person'] + '\n')
+        word.Selection.InsertAfter(self.data['bank_name'] + '：' + self.data['customer_name'] + '  归管客户经理：' + self.data[
+            'manager_person'] + '\n')
         word.Selection.InsertAfter('(一)借款人基本情况\n')
         word.Selection.InsertAfter(self.data['customer_basic_info_1'])
         word.Selection.InsertAfter(self.data['customer_basic_info_2'])
