@@ -3,29 +3,42 @@ import Surface
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 from PyQt5.QtCore import QThread, pyqtSignal
 import os
+from Function import FuncOfConvert
+from DocxCombine import main
 
 
 class ThreadTransfer(QThread):
     signOut = pyqtSignal(str, float)
 
-    def __init__(self, path, type):
+    def __init__(self, path, select_type):
         super(ThreadTransfer, self).__init__()
         self.filepath = path
-        self.type = type
+        self.type = select_type
 
     def run(self):
-        self.signOut.emit('程序开始处理', 90)
-        # manage = ConverseClass()
+        manage = FuncOfConvert()
 
         if os.path.isdir(self.filepath):
-            # result = manage.read_file_from_directory(self.filepath)
-            # for i in result:
-            #     self.signOut.emit(i, 90)
+            result = manage.get_file_list(self.filepath)
+            print(result)
+            file_count = len(result)
+            for index, i in enumerate(result):
+                extension = os.path.splitext(i)[-1][1:]
+                if extension == 'xlsx':
+                    manage.read_data_from_excel(i)
+                else:
+                    manage.read_data_from_xls(i)
+                manage.win32test(i)
+                self.signOut.emit(os.path.splitext(i)[0] + '.docx', (index + 1) / file_count * 100 - 1)
             pass
         else:
-            # result = manage.read_file_from_single_file_path(self.filepath)
-            # self.signOut.emit(result, 90)
-            pass
+            extension = os.path.splitext(self.filepath)[-1][1:]
+            if extension == 'xlsx':
+                manage.read_data_from_excel(self.filepath)
+            else:
+                manage.read_data_from_xls(self.filepath)
+            manage.win32test(self.filepath)
+            self.signOut.emit(os.path.splitext(self.filepath)[0] + '.docx', 90)
         self.signOut.emit('处理完成', 100)
 
 
@@ -47,6 +60,7 @@ class ExcelToWord(QMainWindow, Surface.Ui_MainWindow):
         self.radioButton_File.toggled.connect(self.change_type)
         self.radioButton_Directory.toggled.connect(self.change_type)
         self.pushButton_Start.clicked.connect(self.start_process)
+        self.pushButton_Combine.clicked.connect(self.combine_file)
 
     def select_excel_file(self):
         if 1 == self.type:
@@ -58,6 +72,17 @@ class ExcelToWord(QMainWindow, Surface.Ui_MainWindow):
             directory_path = QFileDialog.getExistingDirectory(self, '选取文件夹', './')
             self.lineEdit_FileOrDirectory.setText(directory_path)
 
+    def combine_file(self):
+        file_name_list = self.get_file_name_list()
+        if file_name_list:
+            process_sign = main(file_name_list)
+            if process_sign[0]:
+                QMessageBox.information(self, '提示', '合并成功,文件名称合并.docx!')
+            else:
+                QMessageBox.information(self, '提示', '合并失败,{},请检查后重试!'.format(process_sign[1]))
+        else:
+            QMessageBox.information(self, '提示', '请先进行转换操作再进行合并功能!')
+
     def start_process(self):
         if not self.lineEdit_FileOrDirectory.text():
             QMessageBox.information(self, '提示', '请选择文件或者文件夹!')
@@ -67,19 +92,25 @@ class ExcelToWord(QMainWindow, Surface.Ui_MainWindow):
                                          self.type)
 
         self.workthread.signOut.connect(self.list_add)
-        self.Button_Start.setEnabled(False)
-        self.Button_Start.setText('正在处理')
+        self.pushButton_Start.setEnabled(False)
+        self.pushButton_Start.setText('正在处理')
         self.workthread.start()
 
-    def list_add(self, message):
-        for file_name in message:
+    def list_add(self, file_name, number):
+        if number == 100:
+            self.pushButton_Start.setEnabled(True)
+            self.pushButton_Start.setText('开始处理')
+        else:
             self.listWidget_Adjust.addItem(file_name)
+        self.progressBar.setValue(number)
 
     def get_file_name_list(self):
         item_count = self.listWidget_Adjust.count()
         file_name_list = []
-        for i in item_count:
+        for i in range(item_count):
             file_name_list.append(self.listWidget_Adjust.item(i).text())
+
+        return file_name_list
 
     def change_type(self):
         if self.radioButton_File.isChecked():
