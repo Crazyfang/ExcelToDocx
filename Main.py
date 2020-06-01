@@ -66,7 +66,7 @@ class ExcelToWord(QMainWindow, Surface.Ui_MainWindow):
         if 1 == self.type:
             filename_choose, file_type = QFileDialog.getOpenFileName(self, '打开',
                                                                      os.path.join(os.path.expanduser("~"), 'Desktop'),
-                                                                     'Excel文件 (*.xlsx);;All Files (*)')
+                                                                     'Excel文件 (*.xlsx);;Excel文件 (*.xls);;All Files (*)')
             self.lineEdit_FileOrDirectory.setText(filename_choose)
         else:
             directory_path = QFileDialog.getExistingDirectory(self, '选取文件夹', './')

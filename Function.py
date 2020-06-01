@@ -57,29 +57,29 @@ class FuncOfConvert:
 
         # 匹配支行和客户经理
         partten_manager_name = re.compile(r'(?P<name>.*)：(?P<bank_name>.*)（(?P<manager_person>.*)）')
-        match = partten_manager_name.match(ws.cell(rowx=3, colx=1).value.strip())
+        match = partten_manager_name.match(ws.cell(rowx=2, colx=0).value.strip())
 
         self.data['bank_name'] = match.group('bank_name')  # 支行名称 A3's value
-        self.data['customer_name'] = ws.cell(rowx=4, colx=2).value  # 客户 B4's value
+        self.data['customer_name'] = ws.cell(rowx=3, colx=1).value  # 客户 B4's value
         self.data['manager_person'] = match.group('manager_person')  # 归管客户经理 A3's value
-        self.data['customer_basic_info_1'] = ws.cell(rowx=31, colx=1).value  # 借款人基本情况1
-        self.data['customer_basic_info_2'] = ws.cell(rowx=32, colx=1).value  # 借款人基本情况2
-        self.data['associate_enterprise_info'] = ws.cell(rowx=34, colx=1).value  # 关联企业情况
-        self.data['associate_merge_table'] = ws.cell(rowx=35, colx=1).value  # 关联并表
+        self.data['customer_basic_info_1'] = ws.cell(rowx=30, colx=0).value  # 借款人基本情况1
+        self.data['customer_basic_info_2'] = ws.cell(rowx=31, colx=0).value  # 借款人基本情况2
+        self.data['associate_enterprise_info'] = ws.cell(rowx=33, colx=0).value  # 关联企业情况
+        self.data['associate_merge_table'] = ws.cell(rowx=34, colx=0).value  # 关联并表
         self.data['enterprise_operator_info_1'] = '\n'.join(
-            ws.cell(rowx=49, colx=1).value.split('\n')[1:])  # 企业经营者相关情况1
+            ws.cell(rowx=48, colx=0).value.split('\n')[1:])  # 企业经营者相关情况1
         self.data['enterprise_operator_info_2'] = '\n'.join(
-            ws.cell(rowx=50, colx=1).value.split('\n')[1:])  # 企业经营者相关情况2
+            ws.cell(rowx=49, colx=0).value.split('\n')[1:])  # 企业经营者相关情况2
         self.data['enterprise_finance_condition_1'] = '\n'.join(
-            ws.cell(rowx=33, colx=1).value.split('\n')[1:])  # 企业财务状况1
-        self.data['enterprise_finance_condition_2'] = ws.cell(rowx=158, colx=1).value  # 企业财务状况2
-        self.data['enterprise_finance_condition_3'] = ws.cell(rowx=159, colx=1).value  # 企业财务状况3
-        self.data['warrantor_and_guaranty_1'] = '\n'.join(ws.cell(rowx=87, colx=1).value.split('\n')[1:])  # 保证人及抵押物情况
-        self.data['warrantor_and_guaranty_2'] = '\n'.join(ws.cell(rowx=88, colx=1).value.split('\n')[1:])  # 保证人及抵押物情况
+            ws.cell(rowx=32, colx=0).value.split('\n')[1:])  # 企业财务状况1
+        self.data['enterprise_finance_condition_2'] = ws.cell(rowx=157, colx=0).value  # 企业财务状况2
+        self.data['enterprise_finance_condition_3'] = ws.cell(rowx=158, colx=0).value  # 企业财务状况3
+        self.data['warrantor_and_guaranty_1'] = '\n'.join(ws.cell(rowx=86, colx=0).value.split('\n')[1:])  # 保证人及抵押物情况
+        self.data['warrantor_and_guaranty_2'] = '\n'.join(ws.cell(rowx=87, colx=0).value.split('\n')[1:])  # 保证人及抵押物情况
         self.data['declaration_reason_and_purpose_1'] = '\n'.join(
-            ws.cell(rowx=168, colx=1).value.split('\n')[1:])  # 支行申报理由及用途1
+            ws.cell(rowx=167, colx=0).value.split('\n')[1:])  # 支行申报理由及用途1
         self.data['declaration_reason_and_purpose_2'] = '\n'.join(
-            ws.cell(rowx=169, colx=1).value.split('\n')[1:])  # 支行申报理由及用途2
+            ws.cell(rowx=168, colx=0).value.split('\n')[1:])  # 支行申报理由及用途2
 
     def win32test(self, excel_file_path):
         doc_file_path = os.path.splitext(excel_file_path)[0] + '.docx'
