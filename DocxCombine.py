@@ -20,5 +20,6 @@ def main(files, final_docx=None):
     except Exception as e:
         return [False, e]
 
+
 if __name__ == '__main__':
     main(['/Users/fangyong/Desktop/123.docx', '/Users/fangyong/Desktop/321.docx'], '/Users/fangyong/Desktop/213.docx')
