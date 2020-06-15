@@ -93,6 +93,8 @@ class ExcelToWord(QMainWindow, Surface.Ui_MainWindow):
 
         self.workthread.signOut.connect(self.list_add)
         self.pushButton_Start.setEnabled(False)
+        self.progressBar.setValue(0)
+        self.listWidget_Adjust.clear()
         self.pushButton_Start.setText('正在处理')
         self.workthread.start()
 
