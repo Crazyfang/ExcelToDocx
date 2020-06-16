@@ -4,6 +4,7 @@ import os
 import xlrd
 import logging
 import time
+import pythoncom
 
 
 def generate_logging():
@@ -45,8 +46,8 @@ class FuncOfConvert:
         self.operation = []  # 资产负债、经营情况
         self.credit = []  # 原有授信担保情况
         self.guarantor = []  # 第二保证人
-        self.excel = client.Dispatch('Excel.Application')
-        self.word = client.Dispatch('Word.Application')
+        self.excel = client.Dispatch('Excel.Application', clsctx=pythoncom.CLSCTX_LOCAL_SERVER)
+        self.word = client.Dispatch('Word.Application', clsctx=pythoncom.CLSCTX_LOCAL_SERVER)
         self.logger = generate_logging()
 
     def get_file_list(self, file_path):
