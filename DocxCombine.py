@@ -10,7 +10,7 @@ def main(files, final_docx=None):
         final_docx = os.path.join(os.path.dirname(files[0]), '合并.docx')
 
     try:
-        new_document = Document()
+        new_document = Document(docx=os.path.join(os.getcwd(), 'default.docx'))
         composer = Composer(new_document)
         for fn in files:
             composer.append(Document(fn))

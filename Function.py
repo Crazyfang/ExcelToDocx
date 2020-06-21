@@ -5,6 +5,8 @@ import xlrd
 import logging
 import time
 import pythoncom
+import sys
+sys.coinit_flags = 0
 
 
 def generate_logging():
@@ -46,9 +48,12 @@ class FuncOfConvert:
         self.operation = []  # 资产负债、经营情况
         self.credit = []  # 原有授信担保情况
         self.guarantor = []  # 第二保证人
+        self.logger = generate_logging()
+        print('参数读取')
+        pythoncom.CoInitialize()
         self.excel = client.Dispatch('Excel.Application', clsctx=pythoncom.CLSCTX_LOCAL_SERVER)
         self.word = client.Dispatch('Word.Application', clsctx=pythoncom.CLSCTX_LOCAL_SERVER)
-        self.logger = generate_logging()
+        print('参数读取成功')
 
     def get_file_list(self, file_path):
         file_list = []
@@ -60,17 +65,18 @@ class FuncOfConvert:
         return file_list
 
     def read_data_from_excel(self, excel_file_path):
-        wb = load_workbook(excel_file_path, read_only=True)
-        sheet_names = wb.sheetnames
-        ws = wb[sheet_names[0]]
-
-        self.data = {}
-        self.house_hold = []  # 法定代表人、经营者家庭资债情况
-        self.operation = []  # 资产负债、经营情况
-        self.credit = []  # 原有授信担保情况
-        self.guarantor = []  # 第二保证人
-
         try:
+            wb = load_workbook(excel_file_path, read_only=True)
+            sheet_names = wb.sheetnames
+            ws = wb[sheet_names[0]]
+
+            self.data = {}
+            self.house_hold = []  # 法定代表人、经营者家庭资债情况
+            self.operation = []  # 资产负债、经营情况
+            self.credit = []  # 原有授信担保情况
+            self.guarantor = []  # 第二保证人
+
+
             self.data['bank_name'] = ws.cell(row=4, column=3).value  # 支行名称 A3's value
             self.data['customer_name'] = ws.cell(row=5, column=2).value  # 客户 B4's value
             self.data['manager_person'] = ws.cell(row=4, column=13).value  # 归管客户经理 A3's value
@@ -143,10 +149,11 @@ class FuncOfConvert:
             self.logger.error(str(e))
 
     def read_data_from_xls(self, excel_file_path):
-        excel = xlrd.open_workbook(excel_file_path)
-        ws = excel.sheet_by_index(0)
-
         try:
+            excel = xlrd.open_workbook(excel_file_path)
+            ws = excel.sheet_by_index(0)
+
+
             self.data = {}
             self.house_hold = []  # 法定代表人、经营者家庭资债情况
             self.operation = []  # 资产负债、经营情况
